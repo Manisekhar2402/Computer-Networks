@@ -1,0 +1,81 @@
+//AddCl.java :
+import java.io.*; 
+import java.net.*; 
+import java.util.Scanner; 
+
+public class AddCl { 
+
+	public static void main(String a[])throws Exception 
+	{ 
+		Socket sk = new Socket("localhost",4321); 
+		BufferedReader brFromServer = new BufferedReader(new InputStreamReader(sk.getInputStream())); 
+		PrintStream ps = new PrintStream(sk.getOutputStream()); 
+		Scanner s = new Scanner(System.in); 
+		System.out.print("Enter a String : "); 
+		String input = s.nextLine(); 
+		ps.println(input); 
+		String chksum = brFromServer.readLine(); 
+		System.out.println(chksum); 
+		 
+		sk.close(); 
+		brFromServer.close(); 
+		 
+		ps.close(); 
+	} 
+} 
+
+//AddSer.java
+
+import java.io.*; 
+import java.net.*; 
+import java.util.Scanner; 
+public class AddSer { 
+
+	public String chksum(String input) 
+	{ 
+		int[] asciiArray; 
+		asciiArray = new int[input.length()]; 
+		int a = 1; 
+		int b = 0; 
+		for(int i=0;i<input.length();i++) 
+		{ 
+			asciiArray[i] = (int)(input.charAt(i)); 
+			a = a + asciiArray[i]; 
+			b = b + a; 
+		} 
+		return (Integer.toHexString(b*65536+a)); 
+	} 
+	 
+	 
+
+	public static void main(String ar[])throws Exception 
+	{ 
+		 
+		try 
+		{ 
+			ServerSocket ss = new ServerSocket(4321); 
+			Socket sk = ss.accept(); 
+			BufferedReader brFromClient = new BufferedReader(new InputStreamReader(sk.getInputStream())); 
+			PrintStream ps = new PrintStream(sk.getOutputStream()); 
+			 
+				 
+				String input = (brFromClient.readLine()); 
+				System.out.println(" Addlr32 of given String is : "+input); 
+				int[] asciiArray; 
+				asciiArray = new int[input.length()]; 
+				int a = 1; 
+				int b = 0; 
+				for(int i=0;i<input.length();i++) 
+				{ 
+					asciiArray[i] = (int)(input.charAt(i)); 
+					a = a + asciiArray[i]; 
+					b = b + a; 
+				} 
+				String ans = (Integer.toHexString(b*65536+a)); 
+				System.out.println(ans); 
+			ss.close(); 
+		} 
+		catch(Exception ex) 
+		{ 
+			ex.printStackTrace(); 
+		} 
