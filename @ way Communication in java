@@ -1,0 +1,130 @@
+// Server side component used to execute commands and returning result 
+// MainProtocol.java
+
+// Client side component. Commands are to fired from here only 
+// MainClient.java
+
+
+//MainClient.java
+
+import java.io.*; 
+import java.net.*;
+public class MainClient {
+    public static void main(String[] args) throws IOException {
+          Socket kkSocket = null; 
+        PrintWriter out = null; 
+        BufferedReader in = null; 
+        try { 
+            kkSocket = new Socket("10.37.32.74", 4445); 
+            out = new PrintWriter(kkSocket.getOutputStream(), true); 
+            in = new BufferedReader(new 
+InputStreamReader(kkSocket.getInputStream())); 
+        } catch (UnknownHostException e) { 
+            System.err.println("Exception " + e); 
+            System.exit(1); 
+        } catch (IOException e) { 
+            System.err.println("Couldn’t get I/O for the connection."); 
+            System.exit(1); 
+        }
+        BufferedReader stdIn = new BufferedReader(new 
+InputStreamReader(System.in)); 
+        String fromServer; 
+          String fromUser;
+        while ((fromUser = stdIn.readLine()) != "hi") { 
+//            System.out.println("Server: " + fromServer); 
+//            if (fromServer.equals("Bye.")) 
+//                break;
+//            fromUser = stdIn.readLine();
+         if (fromUser != null) { 
+//                System.out.println("Client: " + fromUser); 
+                out.println(fromUser); 
+          fromServer = in.readLine(); 
+          System.out.println("Server Response: "+ fromServer); 
+          fromServer = null; 
+          if (fromUser.equals("bye")) 
+                break; 
+         } 
+        }
+        out.close(); 
+        in.close(); 
+        stdIn.close(); 
+        kkSocket.close(); 
+    } 
+}
+
+//end of program
+
+
+//MainProtocol.java
+import java.lang.*; 
+import java.io.*; 
+public class MainProtocol { 
+     String sa,sb; 
+//     String sb,sa;
+     public String processInput(String[] args) { 
+          try { 
+          sb = new String(); 
+          sa  = new String(); 
+          Runtime rt=Runtime.getRuntime(); 
+          Process p=rt.exec("cmd c "+args); 
+          InputStream is = p.getInputStream(); 
+          BufferedReader br = new BufferedReader(new 
+InputStreamReader(is)); 
+          while ((sb = br.readLine()) != null) 
+          { 
+          sa += sb ; 
+; 
+          }
+          p.waitFor(); 
+          System.out.println("process "+p.exitValue()); 
+          } catch(Exception e) { 
+          System.out.println(e.getMessage()+ "sumit"); 
+          }
+          return sa ; 
+     } 
+}
+//end of program
+
+//MainServer.java
+
+import java.net.*;
+import java.io.*;
+public class MainServer { 
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = null; 
+        try { 
+            serverSocket = new ServerSocket(4445); 
+        } catch (IOException e) { 
+            System.err.println("Could not listen on port: 4445."); 
+            System.exit(1); 
+        }
+        Socket clientSocket = null; 
+        try { 
+            clientSocket = serverSocket.accept(); 
+        } catch (IOException e) { 
+            System.err.println("Accept failed."); 
+            System.exit(1); 
+        }
+      PrintWriter out = new 
+PrintWriter(clientSocket.getOutputStream(),true); 
+        BufferedReader in = new BufferedReader( 
+          new InputStreamReader( 
+          clientSocket.getInputStream())); 
+        String inputLine, outputLine; 
+        MainProtocol kkp = new MainProtocol();
+//        outputLine = kkp.processInput(null); 
+//        out.println(outputLine);
+        while ((inputLine = in.readLine()) != null) { 
+          if (inputLine.equals("bye")) 
+                break; 
+            outputLine = kkp.processInput(inputLine); 
+            out.println(outputLine); 
+           outputLine = null;
+        } 
+        out.close(); 
+        in.close(); 
+        clientSocket.close(); 
+        serverSocket.close(); 
+    } 
+}
+
